@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { auth } from "./middleware/Auth.js";
+import { videoRouter } from "./routes/VideoRouter.js";
 
 dotenv.config();
 
@@ -17,5 +18,6 @@ app.use(cookieParser());
 app.use(auth(process.env.TOKEN));
 app.use(express.json());
 app.use(userRoute);
+app.use(videoRouter);
 
 app.listen(5555);

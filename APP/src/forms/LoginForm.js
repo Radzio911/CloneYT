@@ -33,6 +33,7 @@ const LoginForm = () => {
         const { token, login } = data;
         if (login) {
           setCookie("token", token);
+
           navigate("/");
         }
       })
