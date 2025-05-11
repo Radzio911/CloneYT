@@ -6,15 +6,30 @@ import md5 from "md5";
 
 export const videoRouter = new Router();
 
+// videoRouter.get("/videos", async (req, res) => {
+//   let { limit, offset, sort_by = "_id", sort_type = "asc" } = req.query;
+//   if (!offset) offset = 0;
+//   if (!limit) limit = 1e6;
+//   let videos = [...(await Video.find().sort({ [sort_by]: sort_type }))].slice(
+//     parseInt(offset),
+//     parseInt(offset) + parseInt(limit)
+//   );
+
+//   const videosWithUsers = await Promise.all(
+//     videos.map(async (video) => ({
+//       ...video.toJSON(),
+//       user: await User.findById(video.user),
+//     }))
+//   );
+
+//   console.log(videosWithUsers);
+
+//   res.json({ videos: videosWithUsers });
+// });
+
 videoRouter.get("/videos", async (req, res) => {
-  let {
-    username,
-    limit,
-    offset,
-    sort_by = "_id",
-    sort_type = "asc",
-  } = req.query;
-  const user = await User.find({ username }).sort({ [sort_by]: sort_type }); // !TODO
+  let { limit, offset, sort_by = "_id", sort_type = "asc" } = req.query;
+  const user = await User.find().sort({ [sort_by]: sort_type }); // !TODO
   if (!offset) offset = 0;
   if (!limit) limit = 1e6;
   let videos = [...(await Video.find({ user }))].slice(
@@ -99,18 +114,12 @@ videoRouter.delete("/videos/:id", async (req, res) => {
   res.json({ deleted: true });
 });
 
-// videoRouter.get("/migrate", async (req, res) => {
-//   const user = await User.findById("67a89f151d6be9e352d43931");
-//   const video = await User.findById("680e0a83c6f57a59c6380613");
-//   await Promise.all(
-//     data.comments.forEach(async (comment) => {
-//       const { text, created_at } = comment;
-//       await Comment.create({
-//         create_at: new Date(created_at),
-//         text,
-//         user,
-//         video,
-//       });
-//     })
-//   );
-// });
+videoRouter.patch("/videos/:id/views", async (req, res) => {
+  const { id } = req.params;
+  const video = await Video.findByIdAndUpdate(id, { $inc: { views: 1 } });
+
+  res.json({
+    _id: video._id,
+    views: video.views,
+  });
+});

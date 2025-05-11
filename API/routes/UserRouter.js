@@ -43,8 +43,7 @@ userRoute.post("/login", async (req, res) => {
   }
 });
 
-userRoute.get("/test", (req, res) => {
-  console.log("Działa");
-  console.log(req.user);
-  res.json({});
+userRoute.get("/me", async (req, res) => {
+  const user = await User.findById(req.user);
+  res.json({ user });
 });

@@ -2,13 +2,14 @@ import Button from "../componet/atoms/Button";
 import Link from "../componet/atoms/Link";
 import Navbar from "../componet/molecules/Navbar";
 import Video from "../componet/molecules/Video";
-import data from "../data.json";
 import { useParams } from "react-router-dom";
 import { BiLike, BiSolidLike, BiShareAlt } from "react-icons/bi";
 import styled from "styled-components";
 import Input from "../componet/atoms/Input";
 import ProfileImage from "../componet/atoms/ProfileImage";
 import moment from "moment";
+import { useState, useEffect } from "react";
+import { getVideo, getVideos } from "../api";
 
 const StyledVideos = styled.div`
   display: flex;
@@ -75,7 +76,17 @@ const StyledComments = styled.div`
 
 const VideoPage = () => {
   const { id } = useParams();
-  const video = data.videos.find((video) => video.id == id);
+  const [video, setVideo] = useState([]);
+  const [videos, setVideos] = useState([]);
+
+  useEffect(() => {
+    getVideo(id).then((v) => setVideo(v));
+  }, [id]);
+
+  useEffect(() => {
+    getVideos().then((v) => setVideos(v));
+  }, []);
+
   return (
     <>
       <div></div>
@@ -99,7 +110,7 @@ const VideoPage = () => {
             <Input placeHolder={"Comment..."} />
           </StyledNewComment>
           <StyledComments>
-            {data.comments.map((comment) => {
+            {/* {data.comments.map((comment) => {
               const create = new Date(comment.created_at);
               const momentDate = moment(create);
               return (
@@ -113,14 +124,14 @@ const VideoPage = () => {
                   </p>
                 </div>
               );
-            })}
+            })} */}
           </StyledComments>
           <Button backgroundColor="#ffffff" color="#000000">
             LOAD MORE
           </Button>
         </StyledMain>
         <StyledVideos>
-          {data.videos.map((video) => (
+          {videos.map((video) => (
             <Video key={video.id} {...video} />
           ))}
         </StyledVideos>

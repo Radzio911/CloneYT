@@ -39,7 +39,7 @@ const StyledThumbnail = styled.img`
 `;
 
 const Video = ({
-  id,
+  _id,
   title,
   thumbnail,
   upload_date,
@@ -53,7 +53,7 @@ const Video = ({
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/video/${id}`);
+    navigate(`/video/${_id}`);
   };
 
   return (

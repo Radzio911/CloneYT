@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-const StyledInput = styled.input`
+const StyledTextarea = styled.textarea`
   border: none;
   border-bottom: #ffffff 2px solid;
   background-color: transparent;
@@ -9,14 +9,21 @@ const StyledInput = styled.input`
   min-width: 200px;
   outline: none;
   color: #ffffff;
+  resize: none;
 `;
-const Input = ({ placeHolder, value = "", setValue = () => {}, ...props }) => {
+
+const Textarea = ({
+  placeHolder,
+  value = "",
+  setValue = () => {},
+  ...props
+}) => {
   const handleChange = (event) => {
     setValue(event.target.value);
   };
 
   return (
-    <StyledInput
+    <StyledTextarea
       {...props}
       value={value}
       placeholder={placeHolder}
@@ -25,4 +32,4 @@ const Input = ({ placeHolder, value = "", setValue = () => {}, ...props }) => {
   );
 };
 
-export default Input;
+export default Textarea;

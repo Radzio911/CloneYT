@@ -29,6 +29,10 @@ function App() {
             element={<SettingsPage subpage={"your_videos"} />}
           />
           <Route
+            path="/settings/new_video"
+            element={<SettingsPage subpage={"new_video"} />}
+          />
+          <Route
             path="/settings/privacy"
             element={<SettingsPage subpage={"privacy"} />}
           />
