@@ -47,3 +47,45 @@ userRoute.get("/me", async (req, res) => {
   const user = await User.findById(req.user);
   res.json({ user });
 });
+
+userRoute.patch("/me", async (req, res) => {
+  const { username, email, profile_image } = req.body;
+  const user = await User.findByIdAndUpdate(req.user, {
+    username: username,
+    email: email,
+    profile_image: profile_image,
+  });
+  res.json({
+    edited: true,
+    username: user.username,
+    email: user.email,
+    date_joined: user.date_joined,
+  });
+});
+
+userRoute.patch("/password", async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  const user = await User.findById(req.user);
+
+  if (md5(oldPassword) === user.password) {
+    const user = await User.findByIdAndUpdate(req.user, {
+      password: md5(newPassword),
+    });
+
+    res.json({ changed: true });
+  } else {
+    res.json({ changed: false });
+  }
+});
+
+userRoute.delete("/me", async (req, res) => {
+  const { password } = req.headers;
+  const user = await User.findById(req.user);
+
+  if (md5(password) === user.password) {
+    await User.findByIdAndDelete(req.user);
+    res.json({ deleted: true });
+  } else {
+    res.json({ deleted: false });
+  }
+});

@@ -5,9 +5,10 @@ import Link from "../componet/atoms/Link";
 import Navbar from "../componet/molecules/Navbar";
 import styled from "styled-components";
 import CreateVideoForm from "../forms/CreateVideo";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { me } from "../api";
+import { changeMyPassword, me, updateMe, deleteAccount } from "../api";
+import YourVideos from "../componet/YourVideos";
 
 const titles = {
   personal_info: "Personal Info",
@@ -51,15 +52,47 @@ const StyledForm = styled.form`
 const SettingsPage = ({ subpage }) => {
   const navigate = useNavigate();
 
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [profileImage, setProfileImage] = useState("");
+  const [newpassword, setNewPassword] = useState("");
+  const [oldpassword, setOldPassword] = useState("");
+  const [password, setPassword] = useState("");
+
   useEffect(() => {
     me().then((user) => {
-      console.log(user);
-
       if (!user) {
         navigate("/login");
+      } else {
+        setUsername(user.username);
+        setEmail(user.email);
+        setProfileImage(user.profile_image);
       }
     });
   }, [navigate]);
+
+  const handleSaveData = (event) => {
+    event.preventDefault();
+    updateMe(username, email, profileImage).then((edited) => {
+      console.log("edited");
+    });
+  };
+  const handleChangePassword = (event) => {
+    event.preventDefault();
+    changeMyPassword(oldpassword, newpassword).then((chanegd) => {
+      console.log("changed");
+    });
+  };
+  const handleDeleteAccount = (event) => {
+    event.preventDefault();
+
+    if (window.confirm("Are you sure you want to delete an account?")) {
+      deleteAccount(password).then((deleted) => {
+        console.log("deleted");
+        navigate("/");
+      });
+    }
+  };
 
   return (
     <>
@@ -77,18 +110,18 @@ const SettingsPage = ({ subpage }) => {
         <main>
           {subpage === "personal_info" && (
             <>
-              <StyledForm>
+              <StyledForm onSubmit={handleSaveData}>
                 <div>
                   <b>Username</b>
-                  <Input />
+                  <Input value={username} setValue={setUsername} />
                 </div>
                 <div>
                   <b>E-mail</b>
-                  <Input />
+                  <Input value={email} setValue={setEmail} />
                 </div>
                 <div>
                   <b>Profile Image</b>
-                  <Input />
+                  <Input value={profileImage} setValue={setProfileImage} />
                 </div>
                 <Button
                   backgroundColor="#D9D9D9"
@@ -100,18 +133,26 @@ const SettingsPage = ({ subpage }) => {
               </StyledForm>
             </>
           )}
-          {subpage === "your_videos" && <></>}
+          {subpage === "your_videos" && <YourVideos />}
           {subpage === "new_video" && <CreateVideoForm />}
           {subpage === "privacy" && (
             <>
-              <StyledForm>
+              <StyledForm onSubmit={handleChangePassword}>
                 <div>
                   <b>Old Password</b>
-                  <Input />
+                  <Input
+                    type={"password"}
+                    value={oldpassword}
+                    setValue={setOldPassword}
+                  />
                 </div>
                 <div>
                   <b>New Password</b>
-                  <Input />
+                  <Input
+                    type={"password"}
+                    value={newpassword}
+                    setValue={setNewPassword}
+                  />
                 </div>
 
                 <Button
@@ -123,13 +164,17 @@ const SettingsPage = ({ subpage }) => {
                 </Button>
               </StyledForm>
 
-              <StyledForm>
+              <StyledForm onSubmit={handleDeleteAccount}>
                 <span>
                   If you want to delete your account. You can do it here.
                 </span>
                 <div>
                   <b>Password</b>
-                  <Input />
+                  <Input
+                    type="password"
+                    value={password}
+                    setValue={setPassword}
+                  />
                 </div>
                 <Button
                   backgroundColor="#E75A5A"

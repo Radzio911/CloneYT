@@ -10,13 +10,20 @@ const HomePage = () => {
     getVideos(100, 0, "upload_date", "desc").then((v) => setVideos(v));
   }, []);
 
+  useEffect(() => {
+    console.log(videos);
+  }, [videos]);
+
   return (
     <>
       <Navbar />
       <VideoGrid>
-        {videos.map((video) => (
-          <Video key={video.id} {...video} />
-        ))}
+        {videos
+          .filter((video) => video.user)
+          .map((video) => (
+            // <></>
+            <Video key={video.id} {...video} />
+          ))}
       </VideoGrid>
     </>
   );

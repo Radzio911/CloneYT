@@ -6,36 +6,43 @@ import md5 from "md5";
 
 export const videoRouter = new Router();
 
+videoRouter.get("/videos", async (req, res) => {
+  let { limit, offset, sort_by = "upload_date", sort_type = "asc" } = req.query;
+
+  if (!offset) offset = 0;
+  if (!limit) limit = 1e6;
+
+  let videos = [...(await Video.find().sort({ [sort_by]: sort_type }))].slice(
+    parseInt(offset),
+    parseInt(offset) + parseInt(limit)
+  );
+
+  const videosWithUsers = await Promise.all(
+    videos.map(async (video) => ({
+      ...video.toJSON(),
+      user: await User.findById(video.user),
+    }))
+  );
+
+  res.json({ videos: videosWithUsers });
+});
+
 // videoRouter.get("/videos", async (req, res) => {
 //   let { limit, offset, sort_by = "_id", sort_type = "asc" } = req.query;
 //   if (!offset) offset = 0;
 //   if (!limit) limit = 1e6;
-//   let videos = [...(await Video.find().sort({ [sort_by]: sort_type }))].slice(
+
+//   let videos = [...(await Video.find())].slice(
 //     parseInt(offset),
 //     parseInt(offset) + parseInt(limit)
 //   );
 
-//   const videosWithUsers = await Promise.all(
-//     videos.map(async (video) => ({
-//       ...video.toJSON(),
-//       user: await User.findById(video.user),
-//     }))
-//   );
-
-//   console.log(videosWithUsers);
-
-//   res.json({ videos: videosWithUsers });
+//   res.json({ videos });
 // });
 
-videoRouter.get("/videos", async (req, res) => {
-  let { limit, offset, sort_by = "_id", sort_type = "asc" } = req.query;
-  const user = await User.find().sort({ [sort_by]: sort_type }); // !TODO
-  if (!offset) offset = 0;
-  if (!limit) limit = 1e6;
-  let videos = [...(await Video.find({ user }))].slice(
-    parseInt(offset),
-    parseInt(offset) + parseInt(limit)
-  );
+videoRouter.get("/videos/my", async (req, res) => {
+  const user = await User.findById(req.user);
+  const videos = await Video.find({ user }); // TODO {user}
 
   res.json({ videos });
 });
@@ -43,7 +50,7 @@ videoRouter.get("/videos", async (req, res) => {
 videoRouter.get("/videos/:id", async (req, res) => {
   const { id } = req.params;
 
-  const video = await Video.findById(id);
+  const video = await Video.findById(id); // TODO {user}
 
   res.json({ video });
 });
@@ -73,7 +80,7 @@ videoRouter.put("/videos/:id", async (req, res) => {
   let video = await Video.findById(id);
   const user = await User.findById(req.user);
 
-  if (video.user != user._id) {
+  if (video.user.toHexString() != user._id.toHexString()) {
     res.json({ error: "That video is not yours!" });
     return;
   }
@@ -104,7 +111,7 @@ videoRouter.delete("/videos/:id", async (req, res) => {
   let video = await Video.findById(id);
   const user = await User.findById(req.user);
 
-  if (video.user != user._id) {
+  if (video.user.toHexString() != user._id.toHexString()) {
     res.json({ error: "That video is not yours!" });
     return;
   }
@@ -122,4 +129,23 @@ videoRouter.patch("/videos/:id/views", async (req, res) => {
     _id: video._id,
     views: video.views,
   });
+});
+
+videoRouter.patch("/videos/:id/set_hidden", async (req, res) => {
+  const { hidden } = req.body;
+
+  const isHidden = hidden == "true";
+
+  // req.user,
+  const user = await User.findById(req.user);
+  const video = await Video.findById(req.params.id);
+
+  if (video.user.toHexString() != user._id.toHexString()) {
+    res.json({ error: "That video is not yours!" });
+    return;
+  }
+
+  await Video.findByIdAndUpdate(req.params.id, { hidden: isHidden });
+
+  res.json({ id: id, hidden: isHidden });
 });

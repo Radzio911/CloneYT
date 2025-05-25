@@ -48,7 +48,12 @@ const LoginForm = () => {
         value={usernameOrEmail}
         setValue={setUsernameOrEmail}
       />
-      <Input placeHolder={"password"} value={password} setValue={setPassword} />
+      <Input
+        type="password"
+        placeHolder={"password"}
+        value={password}
+        setValue={setPassword}
+      />
       <Button>Login</Button>
     </StyledForm>
   );

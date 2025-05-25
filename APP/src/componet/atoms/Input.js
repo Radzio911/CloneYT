@@ -10,7 +10,13 @@ const StyledInput = styled.input`
   outline: none;
   color: #ffffff;
 `;
-const Input = ({ placeHolder, value = "", setValue = () => {}, ...props }) => {
+const Input = ({
+  placeHolder,
+  value = "",
+  setValue = () => {},
+  type = "text",
+  ...props
+}) => {
   const handleChange = (event) => {
     setValue(event.target.value);
   };
@@ -18,6 +24,7 @@ const Input = ({ placeHolder, value = "", setValue = () => {}, ...props }) => {
   return (
     <StyledInput
       {...props}
+      type={type}
       value={value}
       placeholder={placeHolder}
       onChange={handleChange}
