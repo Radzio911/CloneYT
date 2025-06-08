@@ -11,6 +11,8 @@ import { GlobalStyles } from "./theme/GlobalStyles";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import { CookiesProvider } from "react-cookie";
+import LikedVideosPage from "./pages/LikedVideosPage.js";
+import SubscriptionPage from "./pages/SubscriptionsPage.js";
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/liked" element={<LikedVideosPage />} />
+          <Route path="/subscription" element={<SubscriptionPage />} />
           <Route path="/video/:id" element={<VideoPage />} />
           <Route
             path="/settings/info"

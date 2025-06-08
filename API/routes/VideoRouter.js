@@ -18,13 +18,15 @@ videoRouter.get("/videos", async (req, res) => {
   );
 
   const videosWithUsers = await Promise.all(
-    videos.map(async (video) => ({
-      ...video.toJSON(),
-      user: await User.findById(video.user),
-    }))
+    videos.map(async (video) => {
+      return {
+        ...video.toJSON(),
+        user: video.user ? await User.findById(video.user.toHexString()) : null,
+      };
+    })
   );
 
-  res.json({ videos: videosWithUsers });
+  res.json({ videos: videosWithUsers.filter((video) => video.user != null) });
 });
 
 // videoRouter.get("/videos", async (req, res) => {

@@ -80,6 +80,48 @@ export const getMyVideos = async () => {
 
 export const deleteVideo = async (videoId) => {
   const res = await api.delete(`/videos/${videoId}`);
-  console.log(JSON.parse(res.data));
   return JSON.parse(res.data).deleted;
+};
+
+export const createComment = async (text, videoId) => {
+  const res = await api.post(`/comment`, JSON.stringify({ text, videoId }));
+  return JSON.parse(res.data).comment;
+};
+
+export const getComments = async (videoId) => {
+  const res = await api.get(`/comment/${videoId}`);
+  return JSON.parse(res.data).comments;
+};
+
+export const setLike = async (videoId, liked) => {
+  const res = await api.post(`/liked`, JSON.stringify({ videoId, liked }));
+  return JSON.parse(res.data);
+};
+
+export const getLike = async (videoId) => {
+  const res = await api.get(`/liked/${videoId}`);
+  return JSON.parse(res.data).liked;
+};
+
+export const getLikedVideos = async () => {
+  const res = await api.get(`/liked/videos`);
+  return JSON.parse(res.data).videos;
+};
+
+export const setSubscription = async (userId, subscribe) => {
+  const res = await api.post(
+    `/subscription`,
+    JSON.stringify({ userId, subscribe })
+  );
+  return JSON.parse(res.data);
+};
+
+export const getSubscription = async (userId) => {
+  const res = await api.get(`/subscription/${userId}`);
+  return JSON.parse(res.data).subscribe;
+};
+
+export const getSubscriptionUsers = async () => {
+  const res = await api.get(`/subscription/users`);
+  return JSON.parse(res.data).subscriptions;
 };

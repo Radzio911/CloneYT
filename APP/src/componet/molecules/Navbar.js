@@ -39,8 +39,8 @@ const Navbar = ({ children, ...props }) => {
           <span>T</span>
         </h1>
         <Link to={"/"}>HomePage</Link>
-        <Link to={"/"}>Subscriptions</Link>
-        <Link to={"/"}>Liked Videos</Link>
+        <Link to={"/subscription"}>Subscriptions</Link>
+        <Link to={"/liked"}>Liked Videos</Link>
       </div>
       <div>
         <ProfileImage src={data.users[0].profile_image} />

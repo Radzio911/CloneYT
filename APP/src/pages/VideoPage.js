@@ -9,7 +9,16 @@ import Input from "../componet/atoms/Input";
 import ProfileImage from "../componet/atoms/ProfileImage";
 import moment from "moment";
 import { useState, useEffect } from "react";
-import { getVideo, getVideos } from "../api";
+import {
+  getVideo,
+  getVideos,
+  createComment,
+  getComments,
+  getLike,
+  setLike,
+  getSubscription,
+  setSubscription,
+} from "../api";
 
 const StyledVideos = styled.div`
   display: flex;
@@ -76,16 +85,55 @@ const StyledComments = styled.div`
 
 const VideoPage = () => {
   const { id } = useParams();
-  const [video, setVideo] = useState([]);
+  const [video, setVideo] = useState({});
   const [videos, setVideos] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [comment, setComment] = useState("");
+  const [liked, setLiked] = useState(false);
+  const [sub, setSub] = useState(false); // <-
 
   useEffect(() => {
     getVideo(id).then((v) => setVideo(v));
+    getVideos().then((v) => setVideos(v));
+    getLike(id).then((l) => {
+      // <-
+      setLiked(l);
+    });
   }, [id]);
 
   useEffect(() => {
-    getVideos().then((v) => setVideos(v));
-  }, []);
+    if (video && video.user) {
+      getSubscription(video.user).then((s) => setSub(s));
+    }
+  }, [video.user]);
+
+  const refreshComments = () => {
+    getComments(id).then((c) => setComments(c));
+  };
+
+  useEffect(refreshComments, []);
+
+  const handleChangeLike = (liked) => {
+    // <-
+    setLike(id, liked);
+    setLiked(liked);
+  };
+
+  const handleChangeSubscription = (subscribe) => {
+    // <-
+    console.log(video.user, subscribe);
+    setSubscription(video.user, subscribe);
+    setSub(subscribe);
+  };
+
+  const handleCommentKeyDown = (event) => {
+    if (event.keyCode === 13) {
+      createComment(comment, id).then((comm) => {
+        setComment("");
+        refreshComments();
+      });
+    }
+  };
 
   return (
     <>
@@ -97,24 +145,49 @@ const VideoPage = () => {
           <StyledTitle>
             <h1>{video.title}</h1>
             <div>
-              {video.liked ? (
-                <Button icon={<BiSolidLike />}>Unlike</Button>
+              {sub ? (
+                <Button onClick={() => handleChangeSubscription(false)}>
+                  Unsubscribe
+                </Button>
               ) : (
-                <Button icon={<BiLike />}>Like</Button>
+                <Button onClick={() => handleChangeSubscription(true)}>
+                  Subscribe
+                </Button>
+              )}
+
+              {liked ? (
+                <Button
+                  onClick={() => handleChangeLike(false)}
+                  icon={<BiSolidLike />}
+                >
+                  Unlike
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => handleChangeLike(true)}
+                  icon={<BiLike />}
+                >
+                  Like
+                </Button>
               )}
               <Button icon={<BiShareAlt />}>Share</Button>
             </div>
           </StyledTitle>
           <StyledNewComment>
             <h3>Comment</h3>
-            <Input placeHolder={"Comment..."} />
+            <Input
+              placeHolder={"Comment..."}
+              onKeyUp={handleCommentKeyDown}
+              value={comment}
+              setValue={setComment}
+            />
           </StyledNewComment>
           <StyledComments>
-            {/* {data.comments.map((comment) => {
-              const create = new Date(comment.created_at);
+            {comments.map((comment) => {
+              const create = new Date(comment.create_at);
               const momentDate = moment(create);
               return (
-                <div>
+                <div key={comment._id}>
                   <ProfileImage src={comment.user.profile_image} />
                   <p>
                     <b>
@@ -124,7 +197,7 @@ const VideoPage = () => {
                   </p>
                 </div>
               );
-            })} */}
+            })}
           </StyledComments>
           <Button backgroundColor="#ffffff" color="#000000">
             LOAD MORE
@@ -132,7 +205,7 @@ const VideoPage = () => {
         </StyledMain>
         <StyledVideos>
           {videos.map((video) => (
-            <Video key={video.id} {...video} />
+            <Video key={video._id} {...video} />
           ))}
         </StyledVideos>
       </StyledContainer>
